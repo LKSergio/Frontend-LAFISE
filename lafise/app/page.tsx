@@ -1,9 +1,17 @@
-import Image from "next/image";
+import { SidebarProvider } from "@/contexts/sidebar-context"
+import { Sidebar } from "@/components/sidebar"
 
 export default function Home() {
   return (
-     <h1 className="text-3xl font-bold underline">
-      Hello world, Prueba de Tailwind Css!
-    </h1>
-  );
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar/>
+          <main className="flex-1 p-6">
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <p>Contenido principal del dashboard</p>
+            </div>
+        </main>
+      </div>
+    </SidebarProvider>
+  )
 }
