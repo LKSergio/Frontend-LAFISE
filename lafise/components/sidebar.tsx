@@ -4,12 +4,30 @@ import { useSidebar } from "@/contexts/sidebar-context"
 import Image from "next/image"
 
 import {
-    ChevronRight,
     LayoutDashboard,
+    ArrowRightLeft,
+    Banknote,
+    ClipboardList,
+    Settings2,
+    FileText,
+    Landmark,
+    Users,
+    PiggyBank,
+    Settings,
+    ChevronRight,
 } from "lucide-react"
 
 const menuItems = [
-  { id: "Tablero", label: "Tablero", icon: LayoutDashboard },
+    { id: "Tablero", label: "Tablero", icon: LayoutDashboard },
+    { id: "Transferir", label: "Transferir", icon: ArrowRightLeft },
+    { id: "Pagar", label: "Pagar", icon: Banknote },
+    { id: "Mis transacciones", label: "Mis transacciones", icon: ClipboardList },
+    { id: "Gestionar", label: "Gestionar", icon: Settings2 },
+    { id: "Cheques", label: "Cheques", icon: FileText },
+    { id: "Paganet", label: "Paganet", icon: Landmark },
+    { id: "Administrar", label: "Administrar", icon: Users },
+    { id: "Ahorro automático", label: "Ahorro automático", icon: PiggyBank },
+    { id: "Configuración", label: "Configuración", icon: Settings },
 ]
 
 export function Sidebar() {
@@ -21,7 +39,7 @@ export function Sidebar() {
         <div className="flex items-center gap-2 px-4 py-6">
             <Image src="/banco_lafise.png" width={250} height={100} alt="Banco LAFISE Logo" priority />
         </div>
-        
+
             {/* Menu de Navegación */}
             <nav className="flex-1 px-3 py-2">
                 <ul className="space-y-1">
@@ -48,9 +66,6 @@ export function Sidebar() {
                     })}
                     </ul>
                 </nav>
-            <div className="flex items-center gap-1">
-
-            </div>
 
     </aside>
   )
