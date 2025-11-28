@@ -7,6 +7,7 @@ type SidebarContextType = {
   setActiveItem: (item: string) => void
   isCollapsed: boolean
   setIsCollapsed: (collapsed: boolean) => void
+  toggleCollapsed: () => void
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
@@ -15,8 +16,10 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   const [activeItem, setActiveItem] = useState("Tablero")
   const [isCollapsed, setIsCollapsed] = useState(false)
 
+  const toggleCollapsed = () => setIsCollapsed((prev) => !prev)
+
   return (
-    <SidebarContext.Provider value={{ activeItem, setActiveItem, isCollapsed, setIsCollapsed }}>
+    <SidebarContext.Provider value={{ activeItem, setActiveItem, isCollapsed, setIsCollapsed, toggleCollapsed }}>
       {children}
     </SidebarContext.Provider>
   )
