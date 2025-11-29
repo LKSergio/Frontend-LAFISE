@@ -17,7 +17,7 @@
       "responses": [
         {
           "uuid": "c936f907-a116-4006-a3ef-28e254fdfa36",
-          "body": "{\n  \"full_name\": \"Josué Antonio Pérez López\",\n  \"profile_photo\": \"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png\",\n  \"products\": [\n    {\n      \"type\": \"Account\",\n      \"id\": \"1134948394\"\n    },\n    {\n      \"type\": \"Account\",\n      \"id\": \"1134948375\"\n    }\n  ]\n}",
+          "body": "{\n  \"full_name\": \"Josué Antonio Pérez López\",\n  \"profile_photo\": \"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png\",\n  \"products\": [\n    {\n      \"type\": \"Account\",\n      \"id\": \"1134948394\"\n    },\n    {\n      \"type\": \"Account\",\n      \"id\": \"1134948375\"\n    },\n    {\n      \"type\": \"Account\",\n      \"id\": \"1134948360\"\n    }\n  ]\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Get User Alice Smith",
@@ -74,11 +74,75 @@
       "endpoint": "accounts/:ACCOUNT_ID",
       "responses": [
         {
+          "uuid": "6d54e75b-d45c-4a86-8ada-141c7635155c",
+          "body": "{\n  \"alias\": \"Cuenta corriente USD\",\n  \"account_number\": 1134948360,\n  \"balance\": 5000,\n  \"currency\": \"USD\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "USD Checking Account response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "ACCOUNT_ID",
+              "value": "1134948360",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "7c54e75b-d45c-4a86-8ada-141c7635144b",
+          "body": "{\n  \"alias\": \"Cuenta en dólares\",\n  \"account_number\": 1134948375,\n  \"balance\": 2500,\n  \"currency\": \"USD\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "USD Savings Account response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "ACCOUNT_ID",
+              "value": "1134948375",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
           "uuid": "8b64e75b-d45c-4a86-8ada-141c7635133a",
           "body": "{\n  \"alias\": \"Cuenta de ahorro\",\n  \"account_number\": 1134948394,\n  \"balance\": 7500,\n  \"currency\": \"NIO\"\n}",
           "latency": 0,
           "statusCode": 200,
-          "label": "Ok response",
+          "label": "NIO Savings Account response",
           "headers": [
             {
               "key": "Content-Type",
@@ -249,7 +313,7 @@
             {
               "target": "body",
               "modifier": "amount.currency",
-              "value": "USD",
+              "value": "__INVALID__",
               "invert": false,
               "operator": "equals"
             }
