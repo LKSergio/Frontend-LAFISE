@@ -22,7 +22,7 @@ export function TransferForm() {
   const [currentStep, setCurrentStep] = useState(4)
   const [transactionType, setTransactionType] = useState("Terceros")
   const [selectedAccount, setSelectedAccount] = useState(accounts[0])
-  const [debitConcept, setDebitConcept] = useState("Cancelación de préstamo")
+  const [debitConcept, setDebitConcept] = useState("")
   const [creditConcept, setCreditConcept] = useState("")
   const [reference, setReference] = useState("")
   const [confirmationEmail, setConfirmationEmail] = useState("")
@@ -92,9 +92,9 @@ export function TransferForm() {
             <label className="block text-sm text-gray-800 mb-2">Tipo de transacción</label>
             <button
               onClick={() => setShowTransactionDropdown(!showTransactionDropdown)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg flex items-center justify-between bg-white hover:border-gray-300 transition-colors"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg flex items-center justify-between bg-white hover:border-gray-300 transition-colors text-black"
             >
-              <span className="text-gray-900">{transactionType}</span>
+              <span className="text-black font-medium">{transactionType}</span>
               <ChevronDown className="w-5 h-5 text-gray-400" />
             </button>
             {showTransactionDropdown && (
@@ -106,7 +106,9 @@ export function TransferForm() {
                       setTransactionType(type)
                       setShowTransactionDropdown(false)
                     }}
-                    className="w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg text-black ${
+                      transactionType === type ? 'bg-emerald-50' : ''
+                    }`}
                   >
                     {type}
                   </button>
@@ -153,46 +155,47 @@ export function TransferForm() {
           </div>
 
           {/* Concepto de débito */}
-          <div className="relative">
+          <div className="relative mt-6 md:mt-8">
             <label className="absolute -top-2 left-3 px-1 bg-white text-xs text-emerald-600">Concepto de débito</label>
             <input
               type="text"
               value={debitConcept}
               onChange={(e) => setDebitConcept(e.target.value)}
+              placeholder="Concepto de débito"
               className="w-full px-4 py-3 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-black"
             />
           </div>
 
           {/* Concepto de crédito */}
-          <div>
+          <div className="mt-6 md:mt-8">
             <input
               type="text"
               value={creditConcept}
               onChange={(e) => setCreditConcept(e.target.value)}
               placeholder="Concepto de crédito"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 text-black"
             />
           </div>
 
           {/* Referencia */}
-          <div>
+          <div className="mt-6 md:mt-8">
             <input
               type="text"
               value={reference}
               onChange={(e) => setReference(e.target.value)}
               placeholder="Referencia"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 text-black"
             />
           </div>
 
           {/* Enviar confirmación a */}
-          <div>
+          <div className="mt-6 md:mt-8">
             <input
               type="email"
               value={confirmationEmail}
               onChange={(e) => setConfirmationEmail(e.target.value)}
               placeholder="Enviar confirmación a:"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 text-black"
             />
           </div>
         </div>
