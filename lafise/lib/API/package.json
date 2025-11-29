@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mockoon/cli": "^9.4.0",
+    "@mockoon/cli": "^8.3.0",
     "express": "^4.21.2",
     "swagger-ui-express": "^5.0.1"
   },
