@@ -1,8 +1,12 @@
 "use client"
 
 import { Bell, Menu, Search } from "lucide-react"
+import dynamic from "next/dynamic"
 import { useSidebar } from "@/contexts/sidebar-context"
 import { useUser } from "@/contexts/user-context"
+import AvatarAnimation from "@/public/animation/Avatar.json"
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false })
 
 export function Header() {
   const { toggleCollapsed } = useSidebar()
@@ -39,15 +43,20 @@ export function Header() {
         </div>
 
         {/* Avatar del usuario */}
-        <button className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 hover:border-emerald-500 transition-colors">
-          {user?.profile_photo ? (
-            <img src={user.profile_photo} alt={user.full_name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-medium">
-              {user?.full_name?.charAt(0) || "U"}
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-700 hidden md:block">
+            {user?.full_name || "Usuario"}
+          </span>
+          <button className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 hover:border-emerald-500 transition-colors bg-gray-100">
+            <div className="w-full h-full flex items-center justify-center">
+              <Lottie
+                animationData={AvatarAnimation}
+                loop={true}
+                className="w-full h-full scale-210"
+              />
             </div>
-          )}
-        </button>
+          </button>
+        </div>
       </div>
     </header>
   )
