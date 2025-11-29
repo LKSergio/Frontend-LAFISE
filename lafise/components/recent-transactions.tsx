@@ -37,7 +37,7 @@ export function RecentTransactions() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Transacciones recientes</h2>
-        <button className="text-sm text-gray-500 hover:text-gray-700 transition-colors">Ver todas</button>
+        <button className="text-sm text-gray-800 hover:text-gray-700 transition-colors">Ver todas</button>
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
