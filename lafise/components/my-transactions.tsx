@@ -10,10 +10,11 @@ import type { SummarizedTransaction, Account } from "@/lib/types"
 const tabs = ["Movimientos", "Estado", "Detalle", "Fondo no Disponible"]
 
 export function MyTransactions() {
-  const { accounts } = useUser()
+  const { accounts, localTransactions } = useUser()
   const [activeTab, setActiveTab] = useState("Movimientos")
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null)
   const [transactions, setTransactions] = useState<SummarizedTransaction[]>([])
+  const [serverTransactions, setServerTransactions] = useState<SummarizedTransaction[]>([])
   const [filteredTransactions, setFilteredTransactions] = useState<SummarizedTransaction[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -21,14 +22,14 @@ export function MyTransactions() {
   const [endDate, setEndDate] = useState("")
   const [showAccountDropdown, setShowAccountDropdown] = useState(false)
 
-  // Set first account as default when accounts are loaded
+  // Establecer la primera cuenta como predeterminada cuando se cargan las cuentas
   useEffect(() => {
     if (accounts.length > 0 && !selectedAccount) {
       setSelectedAccount(accounts[0])
     }
   }, [accounts, selectedAccount])
 
-  // Load transactions when account changes
+  // Cargar transacciones del servidor cuando cambia la cuenta seleccionada
   useEffect(() => {
     const loadTransactions = async () => {
       if (!selectedAccount) return
@@ -37,8 +38,16 @@ export function MyTransactions() {
         setLoading(true)
         setError(null)
         const response = await apiClient.getAccountTransactions(selectedAccount.account_number.toString())
-        setTransactions(response.items)
-        setFilteredTransactions(response.items)
+        setServerTransactions(response.items)
+        // Merge with any local transactions immediately
+        const locals = localTransactions[selectedAccount.account_number.toString()] || []
+        const merged = [...locals, ...(response.items || [])]
+        merged.sort((a, b) => {
+          const da = new Date(a.transaction_date || 0).getTime()
+          const db = new Date(b.transaction_date || 0).getTime()
+          return db - da
+        })
+        setTransactions(merged)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to load transactions"
         setError(errorMessage)
@@ -51,7 +60,20 @@ export function MyTransactions() {
     loadTransactions()
   }, [selectedAccount])
 
-  // Filter transactions by date range
+  // Reunir nuevamente (merge) cuando cambian transacciones locales o hay actualización del servidor
+  useEffect(() => {
+    if (!selectedAccount) return
+    const locals = localTransactions[selectedAccount.account_number.toString()] || []
+    const merged = [...locals, ...(serverTransactions || [])]
+    merged.sort((a, b) => {
+      const da = new Date(a.transaction_date || 0).getTime()
+      const db = new Date(b.transaction_date || 0).getTime()
+      return db - da
+    })
+    setTransactions(merged)
+  }, [localTransactions, selectedAccount, serverTransactions])
+
+  // Filtrar transacciones por rango de fechas
   useEffect(() => {
     if (!startDate && !endDate) {
       setFilteredTransactions(transactions)
@@ -65,19 +87,11 @@ export function MyTransactions() {
       const start = startDate ? new Date(startDate) : null
       const end = endDate ? new Date(endDate) : null
 
-      // Set time to start of day for start date
-      if (start) {
-        start.setHours(0, 0, 0, 0)
-      }
-
-      // Set time to end of day for end date
-      if (end) {
-        end.setHours(23, 59, 59, 999)
-      }
+      if (start) start.setHours(0, 0, 0, 0)
+      if (end) end.setHours(23, 59, 59, 999)
 
       if (start && transactionDate < start) return false
       if (end && transactionDate > end) return false
-
       return true
     })
 
@@ -85,7 +99,7 @@ export function MyTransactions() {
   }, [startDate, endDate, transactions])
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A"
+    if (!dateString) return "N/D"
     const date = new Date(dateString)
     return date.toLocaleDateString("es-NI", { day: "2-digit", month: "short", year: "numeric" })
   }
@@ -99,7 +113,7 @@ export function MyTransactions() {
     <div>
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">Mis Transacciones</h1>
 
-      {/* Tabs */}
+      {/* Pestañas */}
       <div className="border-b border-gray-200 mb-6">
         <div className="flex gap-8 overflow-x-auto">
           {tabs.map((tab) => (
@@ -118,10 +132,10 @@ export function MyTransactions() {
 
       {activeTab === "Movimientos" ? (
         <div className="space-y-6">
-          {/* Filters Section */}
+          {/* Sección de filtros */}
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Account Selector */}
+              {/* Selector de cuenta */}
               <div className="relative">
                 <label className="block text-xs font-medium text-gray-700 mb-1">Cuenta</label>
                 <button
@@ -163,14 +177,14 @@ export function MyTransactions() {
                 )}
               </div>
 
-              {/* Date Filters */}
+              {/* Filtros de fecha */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Desde</label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 border border-gray-300 text-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
 
@@ -181,7 +195,7 @@ export function MyTransactions() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-300 text-black rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                   {(startDate || endDate) && (
                     <button
@@ -197,7 +211,7 @@ export function MyTransactions() {
             </div>
           </div>
 
-          {/* Results Info */}
+          {/* Información de resultados */}
           <div className="flex justify-between items-center text-sm text-gray-600">
             <p>
               Mostrando <span className="font-medium text-gray-900">{filteredTransactions.length}</span> movimientos
@@ -205,7 +219,7 @@ export function MyTransactions() {
             </p>
           </div>
 
-          {/* Table */}
+          {/* Tabla */}
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
             {loading ? (
               <div className="p-8 space-y-4">
