@@ -1,13 +1,13 @@
 "use client"
 
 import Image from "next/image"
+import { useUser } from "@/contexts/user-context"
 
 interface CreditCard {
   id: string
   color: "green" | "blue" | "gray"
   firstDigits: string
   lastDigits: string
-  holderName: string
   expiryDate: string
 }
 
@@ -17,7 +17,6 @@ const cards: CreditCard[] = [
     color: "green",
     firstDigits: "5325",
     lastDigits: "9033",
-    holderName: "Mike Smith",
     expiryDate: "06/22",
   },
   {
@@ -25,7 +24,6 @@ const cards: CreditCard[] = [
     color: "blue",
     firstDigits: "5789",
     lastDigits: "2847",
-    holderName: "Mike Smith",
     expiryDate: "04/24",
   },
   {
@@ -33,12 +31,11 @@ const cards: CreditCard[] = [
     color: "gray",
     firstDigits: "4809",
     lastDigits: "2234",
-    holderName: "Mike Smith",
     expiryDate: "09/24",
   },
 ]
 
-{/* Estilos de fondo para cada color de tarjeta */}
+{/* Estilos de fondo para cada color de tarjeta */ }
 const colorClasses = {
   green: "bg-gradient-to-br from-emerald-950 to-emerald-800",
   blue: "bg-gradient-to-br from-blue-950 to-blue-950",
@@ -46,6 +43,8 @@ const colorClasses = {
 }
 
 export function CreditCards() {
+  const { user } = useUser()
+
   return (
     <section>
       <h2 className="text-xl font-semibold text-foreground mb-4 text-gray-800">Mis tarjetas</h2>
@@ -53,40 +52,40 @@ export function CreditCards() {
         {cards.map((card) => (
           <div
             key={card.id}
-            className={`${colorClasses[card.color]} relative overflow-hidden rounded-xl p-4 text-white min-h-[150px] flex flex-col justify-between shadow-lg`}
+            className={`${colorClasses[card.color]} relative overflow-hidden rounded-2xl p-6 text-white min-h-[240px] flex flex-col justify-between shadow-lg`}
           >
-            {/* Logo LAFISE */}
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2 px-0 py-0">
-                <Image src="/Lafise_card.png" width={100} height={100} alt="Banco LAFISE Logo" priority />
-              </div>
+            {/* Logo LAFISE - Superior izquierda */}
+            <div className="flex justify-start items-start">
+              <Image src="/images/Cards/Logo.png" width={100} height={50} alt="Logo Banco LAFISE" priority className="object-contain" />
             </div>
 
-            {/* Fondo decorativo */}
+            {/* Imagen de fondo - Lado derecho */}
             <Image
-              src="/Lafise_Card.png"
-              alt="Banco LAFISE background"
-              width={260}
-              height={40}
-              className="absolute right-50 top-17 object-contain opacity-[0.05] pointer-events-none select-none translate-x-60 -translate-y-20"
+              src="/images/Cards/Background.png"
+              alt="Fondo de tarjeta"
+              width={300}
+              height={300}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 opacity-10 pointer-events-none select-none"
               aria-hidden="true"
               priority
             />
 
-            <div className="flex items-center gap-6 text-lg font-mono tracking-widest px-16 py-4">
+            {/* Número de tarjeta - Centro */}
+            <div className="flex items-center justify-center gap-4 text-xl font-mono tracking-wider my-4">
               <span>{card.firstDigits}</span>
               <span>****</span>
               <span>****</span>
               <span>{card.lastDigits}</span>
             </div>
 
-            <div className="flex items-end mt-0">
+            {/* Información del titular - Inferior */}
+            <div className="flex items-end">
               <div>
-                <p className="text-sm font-medium">{card.holderName}</p>
+                <p className="text-sm font-medium">{user?.full_name || "Cargando..."}</p>
               </div>
-              <div className="text-center px-16 py-0">
-                <p className="text-[10px] opacity-70">Expire date</p>
-                <p className="text-sm font-medium">{card.expiryDate}</p>
+              <div className="text-right px-10">
+                <p className="text-xs opacity-70 mb-1 text-center">Fecha de expiración</p>
+                <p className="text-sm font-medium text-center">{card.expiryDate}</p>
               </div>
             </div>
           </div>
