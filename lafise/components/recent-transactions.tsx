@@ -3,35 +3,53 @@
 import { useState, useEffect } from "react"
 import { useUser } from "@/contexts/user-context"
 import { apiClient } from "@/lib/api-client"
+import { getCurrencySymbol } from "@/lib/validation-utils"
 import type { SummarizedTransaction } from "@/lib/types"
+import { useSidebar } from "@/contexts/sidebar-context"
 
 export function RecentTransactions() {
-  const { accounts } = useUser()
+  const { accounts, localTransactions } = useUser()
+  const { setActiveItem } = useSidebar()
   const [transactions, setTransactions] = useState<SummarizedTransaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadTransactions = async () => {
-      if (accounts.length === 0) return
-
+      if (accounts.length === 0) {
+        setTransactions([])
+        setLoading(false)
+        return
+      }
       try {
         setLoading(true)
         setError(null)
-        // Get transactions from the first account
-        const response = await apiClient.getAccountTransactions(accounts[0].account_number.toString())
-        setTransactions(response.items)
+        // Obtener transacciones de todas las cuentas en paralelo
+        const results = await Promise.all(
+          accounts.map(acc => apiClient.getAccountTransactions(acc.account_number.toString()).catch(() => ({ items: [] as SummarizedTransaction[] })))
+        )
+        const serverItems = results.flatMap(r => r.items || [])
+        const localItems = Object.values(localTransactions).flat()
+        // Fusionar y eliminar duplicados por transaction_number, preferir las locales (las más recientes sobrescriben)
+        const byId = new Map<string, SummarizedTransaction>()
+        ;[...localItems, ...serverItems].forEach(t => {
+          if (!t || !t.transaction_number) return
+          byId.set(t.transaction_number, t)
+        })
+        const merged = Array.from(byId.values())
+          .filter(t => t.transaction_date)
+          .sort((a, b) => new Date(b.transaction_date!).getTime() - new Date(a.transaction_date!).getTime())
+          .slice(0, 3)
+        setTransactions(merged)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to load transactions"
         setError(errorMessage)
-        console.error("Error loading transactions:", err)
       } finally {
         setLoading(false)
       }
     }
-
     loadTransactions()
-  }, [accounts])
+  }, [accounts, localTransactions])
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A"
@@ -39,17 +57,23 @@ export function RecentTransactions() {
     return date.toLocaleDateString("es-NI", { day: "2-digit", month: "2-digit", year: "numeric" })
   }
 
+  const typeBadge = (t: string) => (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${t === 'Credit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{t === 'Credit' ? 'Crédito' : 'Débito'}</span>
+  )
+
+  const goToAll = () => setActiveItem("Mis transacciones")
+
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">Transacciones recientes</h2>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm p-8">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm p-6">
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-4 bg-gray-200 rounded animate-pulse" />
+            ))}
           </div>
         </div>
       </div>
@@ -62,7 +86,7 @@ export function RecentTransactions() {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">Transacciones recientes</h2>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
           Error al cargar las transacciones: {error}
         </div>
       </div>
@@ -73,7 +97,7 @@ export function RecentTransactions() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Transacciones recientes</h2>
-        <button className="text-sm text-gray-800 hover:text-gray-700 transition-colors">Ver todas</button>
+        <button onClick={goToAll} className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors">Ver todas</button>
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -81,30 +105,30 @@ export function RecentTransactions() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Fecha</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Descripción</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Tipo</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Monto</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Fecha</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Descripción</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Tipo</th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Monto</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-8 px-4 text-center text-gray-500">
+                  <td colSpan={4} className="py-8 px-4 text-center text-gray-500 text-sm">
                     No hay transacciones recientes
                   </td>
                 </tr>
               ) : (
                 transactions.map((transaction) => (
-                  <tr
-                    key={transaction.transaction_number}
-                    className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="py-3 px-4 text-sm text-gray-900">{formatDate(transaction.transaction_date)}</td>
-                    <td className="py-3 px-4 text-sm text-gray-900">{transaction.description}</td>
-                    <td className="py-3 px-4 text-sm text-gray-900">{transaction.transaction_type}</td>
+                  <tr key={transaction.transaction_number} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4 text-sm text-gray-900 whitespace-nowrap">{formatDate(transaction.transaction_date)}</td>
                     <td className="py-3 px-4 text-sm text-gray-900">
-                      {transaction.amount.currency} {transaction.amount.value.toFixed(2)}
+                      <div className="font-medium truncate max-w-xs">{transaction.description}</div>
+                      <div className="text-xs text-gray-500">Banco LAFISE</div>
+                    </td>
+                    <td className="py-3 px-4 text-sm">{typeBadge(transaction.transaction_type)}</td>
+                    <td className="py-3 px-4 text-sm text-right font-medium text-gray-900 whitespace-nowrap">
+                      {getCurrencySymbol(transaction.amount.currency)} {transaction.amount.value.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
                     </td>
                   </tr>
                 ))
