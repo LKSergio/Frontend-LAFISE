@@ -14,7 +14,7 @@ export function Header() {
 
   return (
     <header className="flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200">
-      {/* Botón hamburguesa */}
+      {/* Botón de Collapso */}
       <button
         onClick={toggleCollapsed}
         className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
