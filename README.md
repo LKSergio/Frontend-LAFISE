@@ -34,10 +34,20 @@ Antes que nada, gracias a LAFISE por la oportunidad de participar en este proces
     ```powershell
     npm install
     ```
+- Si alguna libreria se instala con vulnerabilidades, ejecutar:
+	```powershell
+	npm audit fix o npm audit fix --force
+	```
 - Iniciar mock API (si corresponde):
 	```powershell
 	npm run start-mock
 	```
+
+- Visualizar el sistema abriendo el navegador en la ruta:
+	```URL
+	http://localhost:3000
+	```
+
 
 **Tecnologías 🛠️**
 - **Framework:** Next.js (App Router) sobre React 18
