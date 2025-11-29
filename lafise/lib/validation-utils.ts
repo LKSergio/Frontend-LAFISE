@@ -81,11 +81,11 @@ export function validateAccountNumber(accountNumber: string): ValidationResult {
         return { valid: false, error: "El número de cuenta es requerido" }
     }
 
-    // Account numbers should be numeric and between 8-12 digits
-    const numericPattern = /^\d{8,12}$/
+    // Account numbers should be numeric and between 10-16 digits
+    const numericPattern = /^\d{10,16}$/
 
     if (!numericPattern.test(accountNumber)) {
-        return { valid: false, error: "El número de cuenta debe tener entre 8 y 12 dígitos" }
+        return { valid: false, error: "El número de cuenta debe tener entre 10 y 16 dígitos" }
     }
 
     return { valid: true }
