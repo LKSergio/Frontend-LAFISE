@@ -39,10 +39,10 @@ export function Sidebar() {
     <aside className="flex h-screen w-64 flex-col bg-white border-r border-gray-200">
       {/* Logo */}
         <div className="flex items-center gap-2 px-4 py-6">
-            <Image src="/Banco_Lafise.png" width={250} height={100} alt="Banco LAFISE Logo" priority />
+            <Image src="/images/sidebar/Logo.png" width={250} height={100} alt="Logo Banco LAFISE" priority />
         </div>
 
-      {/* Navigation Menu */}
+      {/* Menú de navegación */}
       <nav className="flex-1 px-3 py-2">
         <ul className="space-y-1">
           {menuItems.map((item) => {
@@ -69,7 +69,7 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Exchange Rate Section */}
+      {/* Sección de tasa de cambio */}
       <div className="border-t border-gray-200 px-4 py-4">
         <h3 className="mb-3 text-sm font-semibold text-gray-800">Tasa de cambio</h3>
 
@@ -91,7 +91,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Footer Info */}
+      {/* Información de pie de página */}
       <div className="border-t border-gray-200 px-4 py-3">
         <p className="text-xs text-gray-500">IP del Servidor: 190.432.574.23</p>
         <p className="text-xs text-gray-500">Último acceso: 2021/11/21 13:32:11</p>
